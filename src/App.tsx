@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { Wallet, LogOut, RefreshCw, AlertCircle, Coins, List, ArrowDownCircle, ArrowUpCircle, Activity } from 'lucide-react';
+import { Wallet, LogOut, RefreshCw, AlertCircle, Coins, List, ArrowDownCircle, ArrowUpCircle, Activity, RefreshCcw } from 'lucide-react';
 
 // Aave V3 Mainnet Addresses
 const AAVE_POOL_ADDRESS = '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2';
