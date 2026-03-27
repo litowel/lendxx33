@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { Wallet, LogOut, RefreshCw, AlertCircle, Coins, List, ArrowDownCircle, ArrowUpCircle, Activity, RefreshCcw } from 'lucide-react';
+import { Wallet, LogOut, RefreshCw, AlertCircle, Coins, List, ArrowDownCircle, ArrowUpCircle, Activity, RefreshCcw, ArrowRightLeft } from 'lucide-react';
 
 // Aave V3 Mainnet Addresses
 const AAVE_POOL_ADDRESS = '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2';
@@ -42,8 +42,6 @@ export default function App() {
       .then(res => res.json())
       .then(data => setMoralisStatus(data.moralis))
       .catch(() => setMoralisStatus(false));
-
-    checkIfWalletIsConnected();
   }, []);
 
   useEffect(() => {
@@ -52,20 +50,6 @@ export default function App() {
       fetchAaveData(account);
     }
   }, [account]);
-
-  const checkIfWalletIsConnected = async () => {
-    try {
-      const { ethereum } = window as any;
-      if (!ethereum) return;
-
-      const accounts = await ethereum.request({ method: 'eth_accounts' });
-      if (accounts.length > 0) {
-        setAccount(accounts[0]);
-      }
-    } catch (error) {
-      console.error('Error checking wallet connection:', error);
-    }
-  };
 
   const connectWallet = async () => {
     try {
@@ -97,6 +81,38 @@ export default function App() {
     setBalance(null);
     setTokens([]);
     setAaveData(null);
+  };
+
+  const switchAccount = async () => {
+    try {
+      setError(null);
+      const { ethereum } = window as any;
+
+      if (!ethereum) {
+        setError('MetaMask is not installed. Please install it to use this app.');
+        return;
+      }
+
+      setLoading(true);
+      
+      // Force MetaMask to show the account selection popup
+      await ethereum.request({
+        method: 'wallet_requestPermissions',
+        params: [{ eth_accounts: {} }]
+      });
+      
+      const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+      setAccount(accounts[0]);
+    } catch (error: any) {
+      console.error('Error switching account:', error);
+      if (error.code === -32002 || (error.message && error.message.includes('already pending'))) {
+        setError('A connection request is already pending. Please open your MetaMask extension to approve it.');
+      } else {
+        setError(error.message || 'Failed to switch account');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchPortfolio = async (address: string) => {
@@ -266,8 +282,17 @@ export default function App() {
                 {formatAddress(account)}
               </div>
               <button 
+                onClick={switchAccount}
+                disabled={loading}
+                className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors disabled:opacity-50"
+                title="Switch Account"
+              >
+                <ArrowRightLeft size={18} />
+                <span className="hidden sm:inline">Switch Account</span>
+              </button>
+              <button 
                 onClick={disconnectWallet}
-                className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-red-600 transition-colors"
                 title="Disconnect"
               >
                 <LogOut size={18} />
