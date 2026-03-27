@@ -1,4 +1,4 @@
-export const ADMIN_WALLET = '0x1234567890123456789012345678901234567890'; // Replace with 0xYOUR_WALLET_ADDRESS
+export const ADMIN_WALLET = '0xB4FB11FB0c3BE6a1760a0e2ffbe4726255F0990D';
 
 export const NETWORKS: Record<number, { name: string; hex: string; moralis: string }> = {
   1: { name: 'Ethereum Mainnet', hex: '0x1', moralis: '0x1' },

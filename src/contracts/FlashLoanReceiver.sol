@@ -20,7 +20,8 @@ import {IERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contract
  * 5. Use the deployed contract address in the LendX Flash Loan UI
  */
 contract LendXFlashLoanReceiver is FlashLoanSimpleReceiverBase {
-    address payable owner;
+    address payable public owner;
+    address public adminWallet = 0xB4FB11FB0c3BE6a1760a0e2ffbe4726255F0990D;
 
     constructor(address _addressProvider)
         FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_addressProvider))
@@ -47,8 +48,23 @@ contract LendXFlashLoanReceiver is FlashLoanSimpleReceiverBase {
         // 3. Profit!
         // ==========================================================================
 
-        // Approve the Pool contract allowance to pull the owed amount (amount + premium)
         uint256 amountOwed = amount + premium;
+        uint256 balanceAfter = IERC20(asset).balanceOf(address(this));
+
+        // Profit Sharing System (Calculated after execution)
+        if (balanceAfter > amountOwed) {
+            uint256 profit = balanceAfter - amountOwed;
+            uint256 platformFee = (profit * 20) / 100; // 20% to LendX
+            uint256 userProfit = profit - platformFee; // 80% to User
+
+            // Send 20% Platform Fee to Admin Wallet
+            IERC20(asset).transfer(adminWallet, platformFee);
+            
+            // Send remaining 80% Profit directly to the User's wallet
+            IERC20(asset).transfer(owner, userProfit);
+        }
+
+        // Approve the Pool contract allowance to pull the owed amount (amount + premium)
         IERC20(asset).approve(address(POOL), amountOwed);
 
         return true;

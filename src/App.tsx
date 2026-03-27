@@ -45,6 +45,7 @@ function App() {
   const [flashReceiver, setFlashReceiver] = useState('');
   const [flashAsset, setFlashAsset] = useState('USDC');
   const [flashAmount, setFlashAmount] = useState('');
+  const [expectedRevenue, setExpectedRevenue] = useState('');
 
   // AI State
   const [aiLoading, setAiLoading] = useState(false);
@@ -370,7 +371,6 @@ function App() {
       const assetAddress = flashAsset === 'USDC' ? AAVE_ADDRESSES[chainId].USDC : AAVE_ADDRESSES[chainId].WETH;
       const decimals = flashAsset === 'USDC' ? 6 : 18;
       const amountInWei = ethers.parseUnits(flashAmount, decimals);
-      const feeInWei = (amountInWei * 1n) / 1000n; // 0.1% fee
       
       const gasCost = await estimateGasCost(pool, 'flashLoanSimple', [flashReceiver, assetAddress, amountInWei, "0x", 0]);
       if (gasCost) {
@@ -381,19 +381,15 @@ function App() {
         }
       }
 
-      setTxStatus('Step 1/2: Paying 0.1% Platform Fee...');
-      const token = new ethers.Contract(assetAddress, ABIS.ERC20, signer);
-      const feeTx = await token.transfer(ADMIN_WALLET, feeInWei);
-      await feeTx.wait();
-
-      setTxStatus('Step 2/2: Executing Flash Loan...');
+      setTxStatus('Please confirm the flash loan transaction in MetaMask...');
       const tx = await pool.flashLoanSimple(flashReceiver, assetAddress, amountInWei, "0x", 0);
       
       setTxStatus('Transaction pending...');
       await tx.wait();
       
-      setTxStatus('Flash Loan executed successfully!');
+      setTxStatus('Flash Loan executed successfully! Profit distributed by smart contract.');
       setFlashAmount('');
+      setExpectedRevenue('');
       setTimeout(() => setTxStatus(''), 3000);
     } catch (err: any) {
       console.error(err);
@@ -822,15 +818,55 @@ function App() {
                       </div>
                     </div>
 
-                    {flashAmount && !isNaN(Number(flashAmount)) && Number(flashAmount) > 0 && (
-                      <div className="mt-4 p-3 bg-slate-800/50 rounded-lg text-sm space-y-1 border border-slate-700">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Expected Arbitrage Revenue (Gross)</label>
+                      <input
+                        type="number"
+                        value={expectedRevenue}
+                        onChange={(e) => setExpectedRevenue(e.target.value)}
+                        placeholder="e.g., 50"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-yellow-500 transition-colors"
+                      />
+                    </div>
+
+                    {flashAmount && expectedRevenue && !isNaN(Number(flashAmount)) && !isNaN(Number(expectedRevenue)) && (
+                      <div className="mt-4 p-4 bg-slate-800/50 rounded-xl text-sm space-y-2 border border-slate-700">
                         <div className="flex justify-between text-slate-400">
-                          <span>Platform Fee (0.1%)</span>
-                          <span className="text-red-400">-{ (Number(flashAmount) * 0.001).toFixed(4) } {flashAsset}</span>
+                          <span>Flash Loan Amount</span>
+                          <span>{flashAmount} {flashAsset}</span>
                         </div>
-                        <div className="text-xs text-slate-500 mt-1">
-                          * Fee must be paid from your wallet before flash loan execution.
+                        <div className="flex justify-between text-slate-400">
+                          <span>Aave Premium (0.05%)</span>
+                          <span className="text-red-400">-{ (Number(flashAmount) * 0.0005).toFixed(4) } {flashAsset}</span>
                         </div>
+                        <div className="flex justify-between text-slate-400">
+                          <span>Expected Revenue</span>
+                          <span className="text-green-400">+{ Number(expectedRevenue).toFixed(4) } {flashAsset}</span>
+                        </div>
+                        
+                        { (Number(expectedRevenue) - (Number(flashAmount) * 0.0005)) > 0 ? (
+                          <>
+                            <div className="flex justify-between text-slate-300 font-medium pt-2 border-t border-slate-700/50">
+                              <span>Estimated Total Profit</span>
+                              <span>{ (Number(expectedRevenue) - (Number(flashAmount) * 0.0005)).toFixed(4) } {flashAsset}</span>
+                            </div>
+                            <div className="flex justify-between text-slate-400">
+                              <span>Platform Fee (20% of Profit)</span>
+                              <span className="text-red-400">-{ ((Number(expectedRevenue) - (Number(flashAmount) * 0.0005)) * 0.2).toFixed(4) } {flashAsset}</span>
+                            </div>
+                            <div className="flex justify-between text-white font-bold pt-2 border-t border-slate-700/50">
+                              <span>Your Net Profit (80%)</span>
+                              <span className="text-green-400">{ ((Number(expectedRevenue) - (Number(flashAmount) * 0.0005)) * 0.8).toFixed(4) } {flashAsset}</span>
+                            </div>
+                            <div className="text-xs text-slate-500 mt-2 text-center">
+                              * Profit is calculated and distributed automatically by the smart contract after execution.
+                            </div>
+                          </>
+                        ) : (
+                          <div className="pt-2 border-t border-slate-700/50 text-red-400 font-medium text-center">
+                            Strategy is not profitable. Revenue must exceed Aave Premium.
+                          </div>
+                        )}
                       </div>
                     )}
 
