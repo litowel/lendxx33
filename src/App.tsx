@@ -429,7 +429,19 @@ function App() {
           chainId
         })
       });
-      const data = await response.json();
+      
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error(!response.ok ? responseText : 'Invalid response from server');
+      }
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Server error');
+      }
+      
       if (data.error) throw new Error(data.error);
       setAiData(data);
     } catch (err: any) {
