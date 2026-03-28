@@ -505,12 +505,15 @@ function App() {
       {/* Navbar */}
       <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-600 p-2 rounded-lg">
+          <div className="flex justify-between items-center min-h-[4rem] py-3">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 p-2 rounded-lg shrink-0">
                 <Activity className="text-white" size={24} />
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">LendX <span className="text-blue-500">Pro</span></span>
+              <div className="flex flex-col justify-center">
+                <span className="text-xl font-bold text-white tracking-tight leading-none mb-1">LendX <span className="text-blue-500">Pro</span></span>
+                <span className="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">Connect your wallet and get instant Crypto Cash, Powered by UpFrica.africa</span>
+              </div>
             </div>
             
             <div className="flex items-center gap-4">
