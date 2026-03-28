@@ -73,10 +73,19 @@ app.post('/api/analyze', async (req, res) => {
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     
+    // Truncate tokens to top 10 to prevent massive prompts that cause Vercel 10s timeouts
+    let simplifiedPortfolio = portfolio;
+    if (portfolio && portfolio.tokens && Array.isArray(portfolio.tokens)) {
+      simplifiedPortfolio = {
+        ...portfolio,
+        tokens: portfolio.tokens.slice(0, 10)
+      };
+    }
+    
     const prompt = `You are a Senior DeFi Risk Manager and AI Assistant for the LendX platform.
     Analyze this user's portfolio and Aave V3 positions on chain ID ${chainId}.
     
-    Portfolio Data: ${JSON.stringify(portfolio)}
+    Portfolio Data: ${JSON.stringify(simplifiedPortfolio)}
     Aave V3 Data: ${JSON.stringify(aaveData)}
     
     Provide a JSON response with the following exact structure:
@@ -88,8 +97,9 @@ app.post('/api/analyze', async (req, res) => {
       "actionableAdvice": ["string", "string"] (2-3 bullet points of actionable DeFi advice)
     }`;
 
+    // Use flash-lite for maximum speed to avoid Vercel Hobby 10s timeout
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3.1-flash-lite-preview',
       contents: prompt,
       config: { responseMimeType: "application/json" }
     });
