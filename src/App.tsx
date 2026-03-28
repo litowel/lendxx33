@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 import { 
   Wallet, 
   LogOut, 
