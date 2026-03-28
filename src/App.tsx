@@ -20,6 +20,7 @@ import {
   Info
 } from 'lucide-react';
 import { NETWORKS, AAVE_ADDRESSES, ABIS, ADMIN_WALLET } from './lib/constants';
+import { HomeSections } from './components/HomeSections';
 
 function App() {
   // Wallet & Network State
@@ -546,21 +547,7 @@ function App() {
         )}
 
         {!account ? (
-          <div className="text-center py-32">
-            <div className="bg-slate-800/50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-700">
-              <Wallet size={48} className="text-slate-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Welcome to LendX Pro</h2>
-            <p className="text-slate-400 max-w-md mx-auto mb-8">
-              Connect your wallet to access multi-chain lending, flash loans, and AI-powered DeFi strategies.
-            </p>
-            <button
-              onClick={connectWallet}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-medium transition-colors text-lg"
-            >
-              Connect Wallet to Start
-            </button>
-          </div>
+          <HomeSections onConnect={connectWallet} />
         ) : (
           <>
             {/* Tabs */}
