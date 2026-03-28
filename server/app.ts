@@ -23,7 +23,7 @@ async function initMoralis() {
 }
 
 // Initialize on startup for long-running servers, but also check in routes for serverless
-initMoralis();
+// initMoralis(); // Removed to prevent floating promise crashes in Vercel
 
 app.get('/api/health', async (req, res) => {
   await initMoralis();
@@ -98,11 +98,18 @@ app.post('/api/analyze', async (req, res) => {
     }`;
 
     // Use flash-lite for maximum speed to avoid Vercel Hobby 10s timeout
-    const response = await ai.models.generateContent({
+    const aiPromise = ai.models.generateContent({
       model: 'gemini-3.1-flash-lite-preview',
       contents: prompt,
       config: { responseMimeType: "application/json" }
     });
+
+    // Vercel Hobby plan has a 10s timeout. We timeout at 8s to return a graceful error.
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("AI response timed out. Please try again.")), 8000)
+    );
+
+    const response = await Promise.race([aiPromise, timeoutPromise]) as any;
 
     if (response.text) {
       let text = response.text.trim();

@@ -165,8 +165,27 @@ function App() {
   const fetchPortfolioData = async (userAddress: string, currentChainId: number) => {
     try {
       setPortfolioError('');
+      
+      // 1. Fetch Native Balance directly via RPC (Instant & Reliable)
+      try {
+        if (window.ethereum) {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const nativeBal = await provider.getBalance(userAddress);
+          setBalance(ethers.formatEther(nativeBal));
+        }
+      } catch (rpcErr) {
+        console.error("RPC Balance Error:", rpcErr);
+      }
+
+      // 2. Fetch Tokens via Backend
       const chainHex = NETWORKS[currentChainId]?.hex || '0x1';
       const response = await fetch(`/api/portfolio/${userAddress}?chain=${chainHex}`);
+      
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Backend error: ${response.status} ${text}`);
+      }
+      
       const data = await response.json();
       
       if (data.error) {
@@ -175,10 +194,12 @@ function App() {
         return;
       }
 
-      setBalance(ethers.formatEther(data.native.balance));
-      setTokens(data.tokens);
-    } catch (err) {
+      if (data.tokens) {
+        setTokens(data.tokens);
+      }
+    } catch (err: any) {
       console.error('Error fetching portfolio:', err);
+      setPortfolioError(err.message || 'Failed to fetch portfolio data');
     }
   };
 
