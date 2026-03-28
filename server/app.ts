@@ -63,7 +63,7 @@ app.get('/api/portfolio/:address', async (req, res) => {
 });
 
 // AI Assistant Route
-app.post('/api/ai/analyze', async (req, res) => {
+app.post('/api/analyze', async (req, res) => {
   try {
     const { portfolio, aaveData, chainId } = req.body;
     
@@ -95,13 +95,19 @@ app.post('/api/ai/analyze', async (req, res) => {
     });
 
     if (response.text) {
-      res.json(JSON.parse(response.text));
+      let text = response.text.trim();
+      if (text.startsWith('```json')) {
+        text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+      } else if (text.startsWith('```')) {
+        text = text.replace(/^```\n?/, '').replace(/\n?```$/, '');
+      }
+      res.json(JSON.parse(text));
     } else {
       throw new Error("Empty response from AI");
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('AI Error:', error);
-    res.status(500).json({ error: 'AI analysis failed' });
+    res.status(500).json({ error: error.message || 'AI analysis failed' });
   }
 });
 
