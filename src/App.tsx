@@ -433,7 +433,25 @@ function App() {
       if (data.error) throw new Error(data.error);
       setAiData(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to get AI recommendation');
+      let errorMsg = err.message || 'Failed to get AI recommendation';
+      
+      // Try to parse if it's a JSON string
+      try {
+        const parsed = JSON.parse(errorMsg);
+        if (parsed.error && parsed.error.message) {
+          errorMsg = parsed.error.message;
+        }
+      } catch (e) {
+        // Not JSON, keep original string
+      }
+
+      if (errorMsg.includes('API key not valid') || errorMsg.includes('API_KEY_INVALID')) {
+        setError('Invalid AI API Key. Please check your configuration in Vercel.');
+      } else if (errorMsg.includes('fetch')) {
+        setError('Network error. Please check your connection.');
+      } else {
+        setError(errorMsg.length > 100 ? 'An unexpected error occurred during AI analysis.' : errorMsg);
+      }
     } finally {
       setAiLoading(false);
     }
@@ -776,9 +794,9 @@ function App() {
                   <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-3 text-blue-300 text-sm">
                     <Info className="shrink-0 mt-0.5" size={18} />
                     <div>
-                      <strong>Developer Note:</strong> To execute a real flash loan, you must deploy a custom Receiver Smart Contract that handles the arbitrage logic and repays the loan within the same transaction. 
+                      <strong>How it works:</strong> Flash loans let you borrow funds without collateral, as long as you return them in the exact same transaction. 
                       <br/><br/>
-                      We have provided a template contract in <code className="bg-slate-800 px-1 rounded text-blue-200">src/contracts/FlashLoanReceiver.sol</code>. Deploy it via Remix, fund it for the premium fee, and paste its address below.
+                      To do this, you need a custom "Smart Contract" that borrows the money, makes a profitable trade (like arbitrage), and pays the loan back instantly. Paste your contract's address below to get started.
                     </div>
                   </div>
 

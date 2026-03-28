@@ -107,7 +107,16 @@ app.post('/api/analyze', async (req, res) => {
     }
   } catch (error: any) {
     console.error('AI Error:', error);
-    res.status(500).json({ error: error.message || 'AI analysis failed' });
+    let errorMessage = error.message || 'AI analysis failed';
+    try {
+      const parsed = JSON.parse(errorMessage);
+      if (parsed.error && parsed.error.message) {
+        errorMessage = parsed.error.message;
+      }
+    } catch (e) {
+      // Not JSON
+    }
+    res.status(500).json({ error: errorMessage });
   }
 });
 
