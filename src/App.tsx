@@ -906,12 +906,15 @@ function App() {
               <div className="max-w-3xl mx-auto">
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-lg">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="bg-purple-500/10 p-3 rounded-xl border border-purple-500/20">
-                      <BrainCircuit className="text-purple-400" size={24} />
+                    <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 shadow-inner">
+                      <BrainCircuit className="text-indigo-400" size={24} />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-white">AI Risk & Strategy Advisor</h2>
-                      <p className="text-slate-400">Powered by Gemini 1.5 Pro</p>
+                      <h2 className="text-2xl font-semibold text-white tracking-tight">Quantitative Risk Intelligence</h2>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
+                        <p className="text-slate-400 text-xs font-bold tracking-widest uppercase">AI-Powered Risk & Strategy Engine</p>
+                      </div>
                     </div>
                   </div>
 
