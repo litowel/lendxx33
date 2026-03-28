@@ -37,7 +37,7 @@ app.get('/api/portfolio/:address', async (req, res) => {
     const chainHex = req.query.chain || '0x1'; // Default to Mainnet
     
     if (!isMoralisInitialized) {
-      return res.status(503).json({ error: 'Moralis is not initialized. Please set MORALIS_API_KEY.' });
+      return res.status(400).json({ error: 'Moralis is not initialized. Please set MORALIS_API_KEY in Vercel.' });
     }
 
     // Fetch native balance
@@ -68,7 +68,7 @@ app.post('/api/analyze', async (req, res) => {
     const { portfolio, aaveData, chainId } = req.body;
     
     if (!process.env.GEMINI_API_KEY) {
-      return res.status(503).json({ error: 'GEMINI_API_KEY is not set.' });
+      return res.status(400).json({ error: 'GEMINI_API_KEY is not set in Vercel.' });
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });

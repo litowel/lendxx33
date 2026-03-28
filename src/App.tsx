@@ -31,6 +31,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'lending' | 'flash' | 'ai'>('dashboard');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [portfolioError, setPortfolioError] = useState<string>('');
   const [txStatus, setTxStatus] = useState<string>('');
   const [isNetworkDropdownOpen, setIsNetworkDropdownOpen] = useState(false);
 
@@ -163,12 +164,14 @@ function App() {
 
   const fetchPortfolioData = async (userAddress: string, currentChainId: number) => {
     try {
+      setPortfolioError('');
       const chainHex = NETWORKS[currentChainId]?.hex || '0x1';
       const response = await fetch(`/api/portfolio/${userAddress}?chain=${chainHex}`);
       const data = await response.json();
       
       if (data.error) {
         console.warn(data.error);
+        setPortfolioError(data.error);
         return;
       }
 
@@ -614,6 +617,16 @@ function App() {
             {/* Tab Content: Dashboard */}
             {activeTab === 'dashboard' && (
               <div className="space-y-6">
+                {portfolioError && (
+                  <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-4 text-red-400 flex items-start gap-3">
+                    <AlertTriangle className="shrink-0 mt-0.5" size={20} />
+                    <div>
+                      <h4 className="font-semibold text-red-300">Portfolio Data Unavailable</h4>
+                      <p className="text-sm mt-1">{portfolioError}</p>
+                    </div>
+                  </div>
+                )}
+                
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
                   <h3 className="text-lg font-medium text-slate-300 mb-2">Native Balance</h3>
                   <div className="text-4xl font-bold text-white font-mono">
