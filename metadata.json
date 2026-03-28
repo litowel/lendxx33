@@ -1,5 +1,5 @@
 {
-  "name": "LendX",
-  "description": "Simple crypto lending web app dashboard with wallet connection and real balance display.",
+  "name": "Lendx",
+  "description": "Connect your wallet and get instant crypto loan",
   "requestFramePermissions": []
 }
