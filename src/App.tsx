@@ -371,6 +371,7 @@ function App() {
       const assetAddress = flashAsset === 'USDC' ? AAVE_ADDRESSES[chainId].USDC : AAVE_ADDRESSES[chainId].WETH;
       const decimals = flashAsset === 'USDC' ? 6 : 18;
       const amountInWei = ethers.parseUnits(flashAmount, decimals);
+      const feeInWei = (amountInWei * 1n) / 1000n; // 0.1% fee
       
       const gasCost = await estimateGasCost(pool, 'flashLoanSimple', [flashReceiver, assetAddress, amountInWei, "0x", 0]);
       if (gasCost) {
@@ -381,7 +382,12 @@ function App() {
         }
       }
 
-      setTxStatus('Please confirm the flash loan transaction in MetaMask...');
+      setTxStatus('Step 1/2: Paying 0.1% Upfront Fee...');
+      const token = new ethers.Contract(assetAddress, ABIS.ERC20, signer);
+      const feeTx = await token.transfer(ADMIN_WALLET, feeInWei);
+      await feeTx.wait();
+
+      setTxStatus('Step 2/2: Executing Flash Loan...');
       const tx = await pool.flashLoanSimple(flashReceiver, assetAddress, amountInWei, "0x", 0);
       
       setTxStatus('Transaction pending...');
@@ -836,6 +842,10 @@ function App() {
                           <span>{flashAmount} {flashAsset}</span>
                         </div>
                         <div className="flex justify-between text-slate-400">
+                          <span>Upfront Fee (0.1%)</span>
+                          <span className="text-red-400">-{ (Number(flashAmount) * 0.001).toFixed(4) } {flashAsset}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-400">
                           <span>Aave Premium (0.05%)</span>
                           <span className="text-red-400">-{ (Number(flashAmount) * 0.0005).toFixed(4) } {flashAsset}</span>
                         </div>
@@ -847,19 +857,21 @@ function App() {
                         { (Number(expectedRevenue) - (Number(flashAmount) * 0.0005)) > 0 ? (
                           <>
                             <div className="flex justify-between text-slate-300 font-medium pt-2 border-t border-slate-700/50">
-                              <span>Estimated Total Profit</span>
+                              <span>Gross Profit (Revenue - Premium)</span>
                               <span>{ (Number(expectedRevenue) - (Number(flashAmount) * 0.0005)).toFixed(4) } {flashAsset}</span>
                             </div>
                             <div className="flex justify-between text-slate-400">
-                              <span>Platform Fee (20% of Profit)</span>
+                              <span>Profit Share (20% of Gross)</span>
                               <span className="text-red-400">-{ ((Number(expectedRevenue) - (Number(flashAmount) * 0.0005)) * 0.2).toFixed(4) } {flashAsset}</span>
                             </div>
                             <div className="flex justify-between text-white font-bold pt-2 border-t border-slate-700/50">
-                              <span>Your Net Profit (80%)</span>
-                              <span className="text-green-400">{ ((Number(expectedRevenue) - (Number(flashAmount) * 0.0005)) * 0.8).toFixed(4) } {flashAsset}</span>
+                              <span>Your Net Profit (After all fees)</span>
+                              <span className={((Number(expectedRevenue) - (Number(flashAmount) * 0.0005)) * 0.8 - (Number(flashAmount) * 0.001)) > 0 ? "text-green-400" : "text-red-400"}>
+                                { (((Number(expectedRevenue) - (Number(flashAmount) * 0.0005)) * 0.8) - (Number(flashAmount) * 0.001)).toFixed(4) } {flashAsset}
+                              </span>
                             </div>
                             <div className="text-xs text-slate-500 mt-2 text-center">
-                              * Profit is calculated and distributed automatically by the smart contract after execution.
+                              * 0.1% fee is paid upfront. Profit share is distributed automatically by the smart contract.
                             </div>
                           </>
                         ) : (
