@@ -537,7 +537,7 @@ function App() {
               </div>
               <div className="flex flex-col justify-center">
                 <span className="text-xl font-bold text-white tracking-tight leading-none mb-1">LendX <span className="text-blue-500">Pro</span></span>
-                <span className="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">Connect your wallet and get instant Crypto Cash, Powered by UpFrica.africa</span>
+                <span className="text-[10px] sm:text-xs text-slate-400 font-medium leading-none">Your home for instant DeFi lending, trading, and non-crypto instant lending protocols. Powered by UpFrica.africa</span>
               </div>
             </div>
             

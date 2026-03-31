@@ -2,9 +2,11 @@ import express from 'express';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { BLUE_CHIP_COLLECTIONS } from '../src/lib/constants';
+import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
 
+const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
 
