@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Wallet, TrendingUp, Zap, BrainCircuit, ShieldCheck, 
   Clock, Coins, Lock, Activity, BarChart, Globe, 
-  Layers, ArrowRight, CheckCircle2, PlayCircle
+  Layers, ArrowRight, CheckCircle2, PlayCircle, Image
 } from 'lucide-react';
 
 const LENDING_BENEFITS = [
@@ -30,6 +30,14 @@ const AI_BENEFITS = [
   "Backtesting Engine", "Actionable Insights", "Multi-Chain Context", "Beginner Friendly"
 ];
 
+const NFTCASH_BENEFITS = [
+  "Non-Custodial", "Aggregated Liquidity", "Zero Selling Pressure", "Instant Cash",
+  "1-Click Refinancing", "Gasless Signatures", "Flash Loan Payoffs", "Blue-Chip Support",
+  "No Credit Checks", "Keep Airdrop Rights", "Transparent Fees", "Multi-Protocol",
+  "Best APR Routing", "Flexible Durations", "High LTV Ratios", "Liquidation Protection",
+  "Seamless UI/UX", "Real-Time Floor Tracking", "Secure Architecture", "Global Access"
+];
+
 const LENDING_STEPS = [
   { title: "Connect Wallet", desc: "Link your Web3 wallet securely." },
   { title: "Supply Assets", desc: "Deposit crypto to earn yield." },
@@ -51,6 +59,13 @@ const AI_STEPS = [
   { title: "Execute Strategy", desc: "Apply the optimized plan to your portfolio." }
 ];
 
+const NFTCASH_STEPS = [
+  { title: "Connect Wallet", desc: "Link your wallet holding Blue-Chip NFTs." },
+  { title: "Select NFT", desc: "Choose an eligible NFT from your portfolio." },
+  { title: "Compare Offers", desc: "View aggregated loan offers (Blend, BendDAO, etc.)." },
+  { title: "Sign & Route", desc: "Sign gasless EIP-712 transaction to receive funds." }
+];
+
 const LENDING_SLIDES = [
   { title: "Earn Passive Yield", img: "https://picsum.photos/seed/finance/800/400?blur=2", icon: <TrendingUp size={32} /> },
   { title: "Borrow Against Crypto", img: "https://picsum.photos/seed/crypto/800/400?blur=2", icon: <Coins size={32} /> },
@@ -67,6 +82,12 @@ const AI_SLIDES = [
   { title: "Predictive Analytics", img: "https://picsum.photos/seed/data/800/400?blur=2", icon: <BarChart size={32} /> },
   { title: "Risk Mitigation", img: "https://picsum.photos/seed/security/800/400?blur=2", icon: <ShieldCheck size={32} /> },
   { title: "Smart Contract Audits", img: "https://picsum.photos/seed/code/800/400?blur=2", icon: <Lock size={32} /> }
+];
+
+const NFTCASH_SLIDES = [
+  { title: "Unlock NFT Liquidity", img: "https://picsum.photos/seed/nftart/800/400?blur=2", icon: <Image size={32} /> },
+  { title: "Aggregated Offers", img: "https://picsum.photos/seed/liquidity/800/400?blur=2", icon: <Layers size={32} /> },
+  { title: "Keep Your Assets", img: "https://picsum.photos/seed/vault/800/400?blur=2", icon: <ShieldCheck size={32} /> }
 ];
 
 const BenefitGrid = ({ benefits }: { benefits: string[] }) => (
@@ -162,6 +183,36 @@ const Slider = ({ slides }: { slides: {title: string, img: string, icon: any}[] 
   );
 };
 
+const CreateEligibleNFTGuide = () => (
+  <div className="mt-16 bg-slate-900/50 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
+    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+    <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3 relative z-10">
+      <ShieldCheck className="text-blue-400" size={28} /> How to Create an Eligible NFT Collection
+    </h3>
+    <p className="text-slate-400 mb-8 relative z-10 max-w-3xl">
+      NFTCash™ Aggregator routes liquidity exclusively for "Blue-Chip" NFT collections to ensure deep liquidity and minimize risk for lenders. If you are a creator looking to make your collection eligible, follow these industry standards:
+    </p>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+      <div className="bg-slate-800/40 p-6 rounded-xl border border-slate-700/50 hover:border-slate-600 transition-colors">
+        <h4 className="text-white font-semibold mb-3 flex items-center gap-2"><Activity size={18} className="text-blue-400"/> 1. High Trading Volume</h4>
+        <p className="text-sm text-slate-400 leading-relaxed">Maintain consistent, high daily trading volume on major secondary marketplaces like Blur and OpenSea. Volume proves demand and liquidity.</p>
+      </div>
+      <div className="bg-slate-800/40 p-6 rounded-xl border border-slate-700/50 hover:border-slate-600 transition-colors">
+        <h4 className="text-white font-semibold mb-3 flex items-center gap-2"><TrendingUp size={18} className="text-green-400"/> 2. Stable Floor Price</h4>
+        <p className="text-sm text-slate-400 leading-relaxed">Demonstrate a resilient floor price over an extended period. High volatility increases liquidation risks for lenders and prevents protocol whitelisting.</p>
+      </div>
+      <div className="bg-slate-800/40 p-6 rounded-xl border border-slate-700/50 hover:border-slate-600 transition-colors">
+        <h4 className="text-white font-semibold mb-3 flex items-center gap-2"><CheckCircle2 size={18} className="text-purple-400"/> 3. Marketplace Verification</h4>
+        <p className="text-sm text-slate-400 leading-relaxed">Ensure your collection is verified (blue checkmark) on top platforms to establish trust, authenticity, and protect against counterfeit collections.</p>
+      </div>
+      <div className="bg-slate-800/40 p-6 rounded-xl border border-slate-700/50 hover:border-slate-600 transition-colors">
+        <h4 className="text-white font-semibold mb-3 flex items-center gap-2"><Layers size={18} className="text-orange-400"/> 4. Protocol Integration</h4>
+        <p className="text-sm text-slate-400 leading-relaxed">Lobby for inclusion in foundational lending protocols (Blend, BendDAO, Arcade). Our aggregator automatically supports collections whitelisted by these underlying protocols.</p>
+      </div>
+    </div>
+  </div>
+);
+
 export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
   return (
     <div className="space-y-32 py-12">
@@ -252,7 +303,52 @@ export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
         </div>
       </section>
 
-      {/* Section 3: AI Advisor */}
+      {/* Section 3: NFTCash Aggregator */}
+      <section className="relative">
+        <div className="absolute top-1/2 left-0 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2"></div>
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium mb-6"
+          >
+            <Image size={16} /> NFTCash™ Aggregator
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight"
+          >
+            Unlock NFT Liquidity <br className="hidden md:block" /> Across All Protocols
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-lg text-slate-400"
+          >
+            Get the best loan offers from Blend, BendDAO, Arcade, and Gondi in one place. Use your Blue-Chip NFTs as collateral without selling them.
+          </motion.p>
+        </div>
+
+        <Slider slides={NFTCASH_SLIDES} />
+        <StepTutorial steps={NFTCASH_STEPS} />
+        <BenefitGrid benefits={NFTCASH_BENEFITS} />
+        
+        <CreateEligibleNFTGuide />
+
+        <div className="mt-12 text-center">
+          <button onClick={onConnect} className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+            Explore NFTCash <ArrowRight size={18} />
+          </button>
+        </div>
+      </section>
+
+      {/* Section 4: AI Advisor */}
       <section className="relative">
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="text-center max-w-3xl mx-auto mb-12">

@@ -632,7 +632,7 @@ function App() {
                 onClick={() => setActiveTab('nftcash')}
                 className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'nftcash' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
               >
-                <Coins size={18} /> NFTCash Loans
+                <Coins size={18} /> NFTCash™
               </button>
               <button 
                 onClick={() => setActiveTab('ai')}
@@ -665,7 +665,7 @@ function App() {
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                      <h3 className="text-lg font-medium text-slate-300 mb-1">NFTCash Loans</h3>
+                      <h3 className="text-lg font-medium text-slate-300 mb-1">NFTCash™</h3>
                       <p className="text-sm text-slate-400">Unlock liquidity from your NFTs without selling them.</p>
                     </div>
                     <button 

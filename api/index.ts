@@ -1,6 +1,7 @@
 import express from 'express';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
+import { BLUE_CHIP_COLLECTIONS } from '../src/lib/constants';
 
 dotenv.config();
 
@@ -89,8 +90,13 @@ app.get('/api/nft/:address', async (req, res) => {
     const nftData = await nftRes.json();
     const nfts = nftData.result || [];
 
-    // Filter out spam or unverified if possible, but for now just take the first 10 to avoid rate limits
-    const topNfts = nfts.slice(0, 10);
+    // Filter for Blue-Chip Collections
+    const blueChipNfts = nfts.filter((nft: any) => 
+      BLUE_CHIP_COLLECTIONS.includes(nft.token_address.toLowerCase())
+    );
+
+    // Limit to top 10 to avoid rate limits
+    const topNfts = blueChipNfts.slice(0, 10);
 
     // Fetch floor prices from OpenSea
     const enrichedNfts = await Promise.all(topNfts.map(async (nft: any) => {
@@ -138,6 +144,72 @@ app.get('/api/nft/:address', async (req, res) => {
   } catch (error: any) {
     console.error('Error fetching NFTs:', error);
     res.status(500).json({ error: error.message || 'Failed to fetch NFTs' });
+  }
+});
+
+app.get('/api/nft/offers/:address/:tokenId', async (req, res) => {
+  try {
+    const { address, tokenId } = req.params;
+    
+    // In a real production environment, this endpoint would query the subgraphs or APIs 
+    // of Blend, BendDAO, Gondi, and Arcade to get live orderbook/pool data.
+    // For this architectural prototype, we generate realistic aggregated offers based on the collection.
+    
+    const isBlueChip = BLUE_CHIP_COLLECTIONS.includes(address.toLowerCase());
+    if (!isBlueChip) {
+      return res.status(400).json({ error: 'Collection is not a supported Blue-Chip' });
+    }
+
+    // Generate deterministic but realistic mock offers based on the token address
+    const baseApr = 8 + (parseInt(address.slice(0, 4), 16) % 10); // 8% to 17%
+    const baseLtv = 30 + (parseInt(address.slice(4, 8), 16) % 30); // 30% to 59%
+
+    const offers = [
+      {
+        id: 'blend-1',
+        protocol: 'Blend',
+        adapter: '0xBlendAdapterAddress...', // Placeholder for actual adapter
+        apr: baseApr - 1.5, // Blend usually has competitive peer-to-peer rates
+        maxLtv: baseLtv + 5,
+        duration: 'Perpetual',
+        liquidity: 'Peer-to-Peer'
+      },
+      {
+        id: 'benddao-1',
+        protocol: 'BendDAO',
+        adapter: '0xBendDAOAdapterAddress...',
+        apr: baseApr + 2.0, // Peer-to-pool might have higher utilization rates
+        maxLtv: baseLtv,
+        duration: 'Perpetual',
+        liquidity: 'Pool'
+      },
+      {
+        id: 'gondi-1',
+        protocol: 'Gondi',
+        adapter: '0xGondiAdapterAddress...',
+        apr: baseApr,
+        maxLtv: baseLtv + 10,
+        duration: '14 Days',
+        liquidity: 'Peer-to-Peer'
+      },
+      {
+        id: 'arcade-1',
+        protocol: 'Arcade',
+        adapter: '0xArcadeAdapterAddress...',
+        apr: baseApr + 1.0,
+        maxLtv: baseLtv - 5,
+        duration: '30 Days',
+        liquidity: 'Peer-to-Peer'
+      }
+    ];
+
+    // Sort by lowest APR
+    offers.sort((a, b) => a.apr - b.apr);
+
+    res.json({ offers });
+  } catch (error: any) {
+    console.error('Error fetching offers:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch offers' });
   }
 });
 

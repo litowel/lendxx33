@@ -24,6 +24,22 @@ export const AAVE_ADDRESSES: Record<number, { POOL: string; WETH_GATEWAY: string
   }
 };
 
+export const BLUE_CHIP_COLLECTIONS: string[] = [
+  '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d', // BAYC
+  '0x60e4d597bw9822a73600b50e0017cb315ed9a236', // MAYC
+  '0xed5af388653567af2f388e6224dc7c4b3241c544', // Azuki
+  '0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb', // CryptoPunks
+  '0x8a90cab2b38dba80c64b7734e58ee1db38b8992e', // Doodles
+  '0xbd3531da5cf5857e7cfaa92426877b022e612cf8', // Pudgy Penguins
+  '0x34d85c9cdeb23fa97cb08333b511ac86e1c4e258', // Otherdeed
+];
+
+export const NFT_ROUTER_ADDRESSES: Record<number, string> = {
+  1: '0x0000000000000000000000000000000000000000', // Placeholder for Mainnet
+  11155111: '0x0000000000000000000000000000000000000000', // Placeholder for Sepolia
+  137: '0x0000000000000000000000000000000000000000', // Placeholder for Polygon
+};
+
 export const ABIS = {
   POOL: [
     "function getUserAccountData(address user) view returns (uint256 totalCollateralBase, uint256 totalDebtBase, uint256 availableBorrowsBase, uint256 currentLiquidationThreshold, uint256 ltv, uint256 healthFactor)",
@@ -48,5 +64,11 @@ export const ABIS = {
     "function getApproved(uint256 tokenId) view returns (address)",
     "function isApprovedForAll(address owner, address operator) view returns (bool)",
     "function setApprovalForAll(address operator, bool approved)"
+  ],
+  NFT_ROUTER: [
+    "function routeLoanWithSignature(address borrower, address nftContract, uint256 tokenId, address protocolAdapter, uint256 principal, uint256 deadline, bytes calldata signature)",
+    "function refinanceLoan(address borrower, address nftContract, uint256 tokenId, address oldAdapter, address newAdapter, uint256 flashLoanAmount)",
+    "function PLATFORM_FEE_BPS() view returns (uint256)",
+    "function nonces(address) view returns (uint256)"
   ]
 };
