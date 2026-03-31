@@ -20,6 +20,7 @@ export function NFTCash({ account, chainId, setError, setTxStatus }: NFTCashProp
   const [selectedOffer, setSelectedOffer] = useState<any | null>(null);
   
   const [isSigning, setIsSigning] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   // Mock active loan for Refinance demonstration
   const [activeLoan, setActiveLoan] = useState<any | null>(null);
@@ -156,8 +157,9 @@ export function NFTCash({ account, chainId, setError, setTxStatus }: NFTCashProp
       // For this prototype, we simulate the submission delay.
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      setTxStatus('Loan successfully originated via ' + selectedOffer.protocol + '! 2% platform fee captured.');
+      setTxStatus('Loan successfully originated via ' + selectedOffer.protocol + '! 0.5% platform fee captured.');
       setTimeout(() => setTxStatus(''), 5000);
+      setShowModal(false);
       
     } catch (err: any) {
       console.error(err);
@@ -383,7 +385,7 @@ export function NFTCash({ account, chainId, setError, setTxStatus }: NFTCashProp
                 <div className="pt-4 mt-4 border-t border-slate-800">
                   <div className="flex justify-between text-sm text-slate-400 mb-2">
                     <span>Platform Fee</span>
-                    <span className="text-white">2.00% (Origination)</span>
+                    <span className="text-white">0.5% (Origination)</span>
                   </div>
                   <div className="flex justify-between text-sm text-slate-400 mb-6">
                     <span>Max Borrow</span>
@@ -393,15 +395,10 @@ export function NFTCash({ account, chainId, setError, setTxStatus }: NFTCashProp
                   </div>
 
                   <button
-                    onClick={handleSignAndBorrow}
-                    disabled={isSigning}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold text-sm transition-colors shadow-[0_0_20px_rgba(37,99,235,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
+                    onClick={() => setShowModal(true)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold text-sm transition-colors shadow-[0_0_20px_rgba(37,99,235,0.3)] flex items-center justify-center gap-2"
                   >
-                    {isSigning ? (
-                      <><div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div> Signing...</>
-                    ) : (
-                      <>Sign & Route via {selectedOffer.protocol}</>
-                    )}
+                    Review Loan Terms
                   </button>
                   <p className="text-center text-xs text-slate-500 mt-3">
                     Uses EIP-712. Your private keys remain secure.
@@ -412,6 +409,61 @@ export function NFTCash({ account, chainId, setError, setTxStatus }: NFTCashProp
           )}
         </div>
       </div>
+
+      {/* Loan Modal */}
+      {showModal && selectedOffer && selectedNft && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl max-w-md w-full relative">
+            <button 
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              ✕
+            </button>
+            
+            <h3 className="text-xl font-bold text-white mb-2">Confirm Loan Details</h3>
+            <p className="text-slate-400 text-sm mb-6">
+              You are about to complete this loan securely via <strong className="text-white">{selectedOffer.protocol}</strong>.
+            </p>
+            
+            <div className="space-y-4 mb-6">
+              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-400">Estimated APR</span>
+                  <span className="text-green-400 font-bold">{selectedOffer.apr.toFixed(2)}%</span>
+                </div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-400">Max LTV</span>
+                  <span className="text-white font-bold">{selectedOffer.maxLtv}%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">Liquidity Strength</span>
+                  <span className="text-blue-400 font-bold">High</span>
+                </div>
+              </div>
+              
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 flex items-start gap-3">
+                <AlertTriangle className="text-blue-400 shrink-0 mt-0.5" size={16} />
+                <p className="text-xs text-blue-400">
+                  Only blue-chip NFTs are supported due to liquidity requirements.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleSignAndBorrow}
+              disabled={isSigning}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold text-sm transition-colors shadow-[0_0_20px_rgba(37,99,235,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isSigning ? (
+                <><div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div> Processing...</>
+              ) : (
+                <>Route to {selectedOffer.protocol}</>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

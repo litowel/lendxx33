@@ -260,6 +260,45 @@ export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
         </div>
       </section>
 
+      {/* Section 1.5: TokenVault */}
+      <section className="relative">
+        <div className="absolute top-1/2 left-0 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2"></div>
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-medium mb-6"
+          >
+            <Coins size={16} /> TokenVault™
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight"
+          >
+            Your ERC-20 Tokens <br className="hidden md:block" /> as Instant Collateral
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-lg text-slate-400"
+          >
+            Deposit supported ERC-20 tokens into Aave V3 and borrow instantly. Maximize your portfolio's utility without selling your favorite assets.
+          </motion.p>
+        </div>
+
+        <div className="mt-12 text-center">
+          <button onClick={onConnect} className="inline-flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            Enter TokenVault <ArrowRight size={18} />
+          </button>
+        </div>
+      </section>
+
       {/* Section 2: Flash Loans */}
       <section className="relative">
         <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2"></div>
@@ -344,6 +383,45 @@ export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
         <div className="mt-12 text-center">
           <button onClick={onConnect} className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]">
             Explore NFTCash <ArrowRight size={18} />
+          </button>
+        </div>
+      </section>
+
+      {/* Section 3.5: Fractional Loans */}
+      <section className="relative">
+        <div className="absolute top-1/2 right-0 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2"></div>
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium mb-6"
+          >
+            <Layers size={16} /> Fractional Loans™
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight"
+          >
+            Borrow Against <br className="hidden md:block" /> Fractional Ownership
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-lg text-slate-400"
+          >
+            Unlock liquidity from tokenized real estate, business equity, and fine art. The future of lending is fractional.
+          </motion.p>
+        </div>
+
+        <div className="mt-12 text-center">
+          <button onClick={onConnect} className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]">
+            Learn About Fractional Loans <ArrowRight size={18} />
           </button>
         </div>
       </section>

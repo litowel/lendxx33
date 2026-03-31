@@ -22,6 +22,9 @@ import {
 import { NETWORKS, AAVE_ADDRESSES, ABIS, ADMIN_WALLET } from './lib/constants';
 import { NFTCash } from './components/NFTCash';
 import { HomeSections } from './components/HomeSections';
+import { TokenVault } from './components/TokenVault';
+import { FlashBuilder } from './components/FlashBuilder';
+import { FractionalLoans } from './components/FractionalLoans';
 
 function App() {
   // Wallet & Network State
@@ -29,7 +32,7 @@ function App() {
   const [chainId, setChainId] = useState<number>(11155111); // Default to Sepolia
   
   // UI State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'lending' | 'flash' | 'nftcash' | 'ai'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'lending' | 'tokenvault' | 'flash' | 'flashbuilder' | 'nftcash' | 'fractionalloans' | 'ai'>('dashboard');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [portfolioError, setPortfolioError] = useState<string>('');
@@ -623,16 +626,34 @@ function App() {
                 <Coins size={18} /> Lending (Aave)
               </button>
               <button 
+                onClick={() => setActiveTab('tokenvault')}
+                className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'tokenvault' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+              >
+                <Coins size={18} /> TokenVault™
+              </button>
+              <button 
                 onClick={() => setActiveTab('flash')}
                 className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'flash' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
               >
                 <Zap size={18} /> Flash Loans
               </button>
               <button 
+                onClick={() => setActiveTab('flashbuilder')}
+                className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'flashbuilder' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+              >
+                <Zap size={18} /> FlashBuilder™
+              </button>
+              <button 
                 onClick={() => setActiveTab('nftcash')}
                 className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'nftcash' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
               >
                 <Coins size={18} /> NFTCash™
+              </button>
+              <button 
+                onClick={() => setActiveTab('fractionalloans')}
+                className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'fractionalloans' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+              >
+                <Activity size={18} /> Fractional Loans™
               </button>
               <button 
                 onClick={() => setActiveTab('ai')}
@@ -977,6 +998,21 @@ function App() {
               </div>
             )}
 
+            {/* Tab Content: TokenVault */}
+            {activeTab === 'tokenvault' && (
+              <TokenVault 
+                account={account} 
+                chainId={chainId} 
+                setError={setError} 
+                setTxStatus={setTxStatus} 
+              />
+            )}
+
+            {/* Tab Content: FlashBuilder */}
+            {activeTab === 'flashbuilder' && (
+              <FlashBuilder />
+            )}
+
             {/* Tab Content: NFTCash */}
             {activeTab === 'nftcash' && (
               <NFTCash 
@@ -985,6 +1021,11 @@ function App() {
                 setError={setError} 
                 setTxStatus={setTxStatus} 
               />
+            )}
+
+            {/* Tab Content: FractionalLoans */}
+            {activeTab === 'fractionalloans' && (
+              <FractionalLoans />
             )}
 
             {/* Tab Content: AI Advisor */}

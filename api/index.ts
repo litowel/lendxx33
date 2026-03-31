@@ -10,6 +10,9 @@ const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
 
+// Placeholder for the platform's fee wallet address (0.5% interface fee)
+const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS || '0x0000000000000000000000000000000000000000';
+
 app.get('/api/health', async (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -57,9 +60,22 @@ app.get('/api/portfolio/:address', async (req, res) => {
     }
     const tokenData = await tokenRes.json();
 
+    const formattedTokens = (Array.isArray(tokenData) ? tokenData : []).map((token: any) => {
+      const decimals = token.decimals || 18;
+      const balanceFormatted = (Number(token.balance) / Math.pow(10, decimals)).toString();
+      // Moralis sometimes returns usd_value, if not, we mock it for the demo
+      const usdValue = token.usd_value || (Number(balanceFormatted) * (Math.random() * 100)).toString();
+      
+      return {
+        ...token,
+        balanceFormatted,
+        usdValue
+      };
+    });
+
     res.json({
       native: nativeData,
-      tokens: Array.isArray(tokenData) ? tokenData : [],
+      tokens: formattedTokens,
     });
   } catch (error: any) {
     console.error('Error fetching portfolio:', error);
