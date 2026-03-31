@@ -20,6 +20,7 @@ import {
   Info
 } from 'lucide-react';
 import { NETWORKS, AAVE_ADDRESSES, ABIS, ADMIN_WALLET } from './lib/constants';
+import { NFTCash } from './components/NFTCash';
 import { HomeSections } from './components/HomeSections';
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
   const [chainId, setChainId] = useState<number>(11155111); // Default to Sepolia
   
   // UI State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'lending' | 'flash' | 'ai'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'lending' | 'flash' | 'nftcash' | 'ai'>('dashboard');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [portfolioError, setPortfolioError] = useState<string>('');
@@ -628,6 +629,12 @@ function App() {
                 <Zap size={18} /> Flash Loans
               </button>
               <button 
+                onClick={() => setActiveTab('nftcash')}
+                className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'nftcash' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+              >
+                <Coins size={18} /> NFTCash Loans
+              </button>
+              <button 
                 onClick={() => setActiveTab('ai')}
                 className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'ai' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
               >
@@ -652,6 +659,21 @@ function App() {
                   <h3 className="text-lg font-medium text-slate-300 mb-2">Native Balance</h3>
                   <div className="text-4xl font-bold text-white font-mono">
                     {parseFloat(balance).toFixed(4)} <span className="text-slate-500 text-2xl">ETH</span>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <h3 className="text-lg font-medium text-slate-300 mb-1">NFTCash Loans</h3>
+                      <p className="text-sm text-slate-400">Unlock liquidity from your NFTs without selling them.</p>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('nftcash')}
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-colors whitespace-nowrap"
+                    >
+                      Use Your NFT as Collateral
+                    </button>
                   </div>
                 </div>
 
@@ -953,6 +975,16 @@ function App() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Tab Content: NFTCash */}
+            {activeTab === 'nftcash' && (
+              <NFTCash 
+                account={account} 
+                chainId={chainId} 
+                setError={setError} 
+                setTxStatus={setTxStatus} 
+              />
             )}
 
             {/* Tab Content: AI Advisor */}

@@ -40,6 +40,13 @@ export const ABIS = {
     "function balanceOf(address account) view returns (uint256)",
     "function symbol() view returns (string)",
     "function decimals() view returns (uint8)",
-    "function transfer(address to, uint256 amount) returns (bool)"
+    "function transfer(address to, uint256 amount) returns (bool)",
+    "function transferFrom(address from, address to, uint256 amount) returns (bool)"
+  ],
+  ERC721: [
+    "function approve(address to, uint256 tokenId)",
+    "function getApproved(uint256 tokenId) view returns (address)",
+    "function isApprovedForAll(address owner, address operator) view returns (bool)",
+    "function setApprovalForAll(address operator, bool approved)"
   ]
 };
