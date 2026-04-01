@@ -90,6 +90,69 @@ const NFTCASH_SLIDES = [
   { title: "Keep Your Assets", img: "https://picsum.photos/seed/vault/800/400?blur=2", icon: <ShieldCheck size={32} /> }
 ];
 
+const TOKENVAULT_BENEFITS = [
+  "Use ERC-20s as Collateral", "Instant Aave Integration", "No Selling Required", "Keep Asset Upside",
+  "Multi-Token Support", "Real-Time USD Values", "One-Click Borrowing", "Flexible LTV Options",
+  "Zero Hidden Fees", "Non-Custodial", "Secure Smart Contracts", "Auto-Routing",
+  "High Liquidity", "Transparent Rates", "Gas Optimized", "Portfolio Tracking",
+  "Instant Withdrawals", "Risk Management", "Beginner Friendly", "24/7 Availability"
+];
+
+const TOKENVAULT_STEPS = [
+  { title: "Select Asset", desc: "Choose an ERC-20 token from your wallet." },
+  { title: "Choose Amount", desc: "Select 25%, 50%, 75%, or 100% of your balance." },
+  { title: "Deposit Collateral", desc: "Supply your tokens securely to Aave." },
+  { title: "Borrow Instantly", desc: "Get instant liquidity against your collateral." }
+];
+
+const TOKENVAULT_SLIDES = [
+  { title: "ERC-20 Collateral", img: "https://picsum.photos/seed/erc20/800/400?blur=2", icon: <Coins size={32} /> },
+  { title: "Instant Liquidity", img: "https://picsum.photos/seed/liquidity2/800/400?blur=2", icon: <Zap size={32} /> },
+  { title: "Keep Your Assets", img: "https://picsum.photos/seed/vault2/800/400?blur=2", icon: <ShieldCheck size={32} /> }
+];
+
+const FLASHBUILDER_BENEFITS = [
+  "No-Code Interface", "Strategy Simulation", "Zero Capital Required", "Arbitrage Modeling",
+  "Liquidation Hunting", "Debt Refinancing", "Instant Feedback", "Risk-Free Testing",
+  "Educational Tool", "Step-by-Step Logic", "Multi-Asset Support", "Profit Estimation",
+  "Visual Builder", "Protocol Agnostic", "Safe Environment", "Advanced Strategies",
+  "DeFi Composability", "Clear Explanations", "Beginner Friendly", "100% Free to Use"
+];
+
+const FLASHBUILDER_STEPS = [
+  { title: "Choose Strategy", desc: "Select Arbitrage, Liquidation, or Refinancing." },
+  { title: "Select Asset", desc: "Choose the token you want to borrow." },
+  { title: "Set Parameters", desc: "Input the loan amount and expected profit." },
+  { title: "Generate Logic", desc: "View the step-by-step execution plan." }
+];
+
+const FLASHBUILDER_SLIDES = [
+  { title: "No-Code Builder", img: "https://picsum.photos/seed/builder/800/400?blur=2", icon: <Layers size={32} /> },
+  { title: "Strategy Simulation", img: "https://picsum.photos/seed/simulation/800/400?blur=2", icon: <Activity size={32} /> },
+  { title: "Risk-Free Testing", img: "https://picsum.photos/seed/testing/800/400?blur=2", icon: <ShieldCheck size={32} /> }
+];
+
+const FRACTIONAL_BENEFITS = [
+  "Real Estate Backed", "Business Equity", "Fine Art Collateral", "Micro-Borrowing",
+  "High Liquidity Pools", "Diversified Risk", "Global Access", "Transparent Valuation",
+  "Instant Cash", "No Credit Checks", "Keep Ownership", "Fractional Shares",
+  "On-Chain Proof", "Secure Custody", "Low Interest Rates", "Flexible Terms",
+  "Automated Escrow", "24/7 Markets", "Democratized Finance", "Future-Proof DeFi"
+];
+
+const FRACTIONAL_STEPS = [
+  { title: "Tokenize Asset", desc: "Real-world assets are tokenized on-chain." },
+  { title: "Hold Shares", desc: "Purchase or hold fractional tokens." },
+  { title: "Use as Collateral", desc: "Deposit tokens into our smart contracts." },
+  { title: "Borrow Instantly", desc: "Borrow stablecoins against your share." }
+];
+
+const FRACTIONAL_SLIDES = [
+  { title: "Real-World Assets", img: "https://picsum.photos/seed/realestate/800/400?blur=2", icon: <Globe size={32} /> },
+  { title: "Fractional Ownership", img: "https://picsum.photos/seed/fractional/800/400?blur=2", icon: <Layers size={32} /> },
+  { title: "Instant Liquidity", img: "https://picsum.photos/seed/cash/800/400?blur=2", icon: <Coins size={32} /> }
+];
+
 const BenefitGrid = ({ benefits }: { benefits: string[] }) => (
   <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 mt-8">
     {benefits.map((b, i) => (
@@ -213,10 +276,70 @@ const CreateEligibleNFTGuide = () => (
   </div>
 );
 
+const HERO_SLIDES = [
+  { title: "LendX Pro Aggregator", desc: "Your home for instant DeFi lending, trading, and non-crypto instant lending protocols.", img: "https://picsum.photos/seed/defi/1200/600?blur=2", icon: <Globe size={40} /> },
+  { title: "TokenVault™", desc: "Use your ERC-20 tokens as instant collateral on Aave V3.", img: "https://picsum.photos/seed/erc20/1200/600?blur=2", icon: <Coins size={40} /> },
+  { title: "FlashBuilder™", desc: "No-code flash loan strategy simulator for arbitrage and liquidations.", img: "https://picsum.photos/seed/builder/1200/600?blur=2", icon: <Layers size={40} /> },
+  { title: "NFTCash™ Aggregator", desc: "Unlock liquidity from Blue-Chip NFTs across multiple protocols.", img: "https://picsum.photos/seed/nftart/1200/600?blur=2", icon: <Image size={40} /> },
+  { title: "Fractional Loans™", desc: "Borrow against tokenized real estate, business equity, and fine art.", img: "https://picsum.photos/seed/fractional/1200/600?blur=2", icon: <Activity size={40} /> },
+  { title: "AI Risk Advisor", desc: "Quantitative risk intelligence and actionable portfolio advice.", img: "https://picsum.photos/seed/data/1200/600?blur=2", icon: <BrainCircuit size={40} /> }
+];
+
+const HeroSlider = () => {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((p) => (p + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="relative w-full h-80 md:h-[400px] rounded-3xl overflow-hidden border border-slate-700 shadow-2xl mb-24 group">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={current}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.7 }}
+          className="absolute inset-0"
+        >
+          <img src={HERO_SLIDES[current].img} alt="Hero Slide" className="w-full h-full object-cover opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent"></div>
+          
+          <div className="absolute bottom-0 left-0 p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center gap-6 w-full">
+            <div className="p-5 bg-blue-600/20 backdrop-blur-md rounded-2xl border border-blue-500/30 text-blue-400 shrink-0">
+              {HERO_SLIDES[current].icon}
+            </div>
+            <div className="max-w-2xl">
+              <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-3">{HERO_SLIDES[current].title}</h2>
+              <p className="text-slate-300 text-lg md:text-xl">{HERO_SLIDES[current].desc}</p>
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+      
+      <div className="absolute bottom-6 right-8 flex gap-3">
+        {HERO_SLIDES.map((_, i) => (
+          <button 
+            key={i}
+            onClick={() => setCurrent(i)}
+            className={`h-2 rounded-full transition-all ${i === current ? 'bg-blue-500 w-8' : 'bg-slate-600 w-2 hover:bg-slate-500'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
   return (
     <div className="space-y-32 py-12">
       
+      <HeroSlider />
+
       {/* Section 1: Lending */}
       <section className="relative">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -292,6 +415,10 @@ export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
           </motion.p>
         </div>
 
+        <Slider slides={TOKENVAULT_SLIDES} />
+        <StepTutorial steps={TOKENVAULT_STEPS} />
+        <BenefitGrid benefits={TOKENVAULT_BENEFITS} />
+
         <div className="mt-12 text-center">
           <button onClick={onConnect} className="inline-flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
             Enter TokenVault <ArrowRight size={18} />
@@ -338,6 +465,49 @@ export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
         <div className="mt-12 text-center">
           <button onClick={onConnect} className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(147,51,234,0.4)]">
             Try Flash Loans <ArrowRight size={18} />
+          </button>
+        </div>
+      </section>
+
+      {/* Section 2.5: FlashBuilder */}
+      <section className="relative">
+        <div className="absolute top-1/2 left-0 w-96 h-96 bg-yellow-600/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2"></div>
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-medium mb-6"
+          >
+            <Zap size={16} /> FlashBuilder™
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight"
+          >
+            No-Code Flash Loan <br className="hidden md:block" /> Strategy Simulator
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-lg text-slate-400"
+          >
+            Simulate complex arbitrage, liquidation, and debt refinancing strategies without writing a single line of Solidity code.
+          </motion.p>
+        </div>
+
+        <Slider slides={FLASHBUILDER_SLIDES} />
+        <StepTutorial steps={FLASHBUILDER_STEPS} />
+        <BenefitGrid benefits={FLASHBUILDER_BENEFITS} />
+
+        <div className="mt-12 text-center">
+          <button onClick={onConnect} className="inline-flex items-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(202,138,4,0.4)]">
+            Build a Strategy <ArrowRight size={18} />
           </button>
         </div>
       </section>
@@ -418,6 +588,10 @@ export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
             Unlock liquidity from tokenized real estate, business equity, and fine art. The future of lending is fractional.
           </motion.p>
         </div>
+
+        <Slider slides={FRACTIONAL_SLIDES} />
+        <StepTutorial steps={FRACTIONAL_STEPS} />
+        <BenefitGrid benefits={FRACTIONAL_BENEFITS} />
 
         <div className="mt-12 text-center">
           <button onClick={onConnect} className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]">

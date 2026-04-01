@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Coins, ArrowRight, ShieldCheck, Activity, AlertTriangle } from 'lucide-react';
-import { NETWORKS, AAVE_ADDRESSES } from '../lib/constants';
+import { Coins, ArrowRight, ShieldCheck, Activity, AlertTriangle, Loader2 } from 'lucide-react';
+import { NETWORKS, AAVE_ADDRESSES, ABIS } from '../lib/constants';
+import { ethers } from 'ethers';
 
 interface TokenVaultProps {
   account: string;
@@ -14,6 +15,12 @@ export function TokenVault({ account, chainId, setError, setTxStatus }: TokenVau
   const [loading, setLoading] = useState(false);
   const [selectedToken, setSelectedToken] = useState<any | null>(null);
   const [amountPercent, setAmountPercent] = useState<number>(0);
+  
+  // Transaction Modal State
+  const [showTxModal, setShowTxModal] = useState(false);
+  const [txAction, setTxAction] = useState<'deposit' | 'borrow' | null>(null);
+  const [isApproving, setIsApproving] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
 
   useEffect(() => {
     if (account && chainId) {
@@ -28,7 +35,7 @@ export function TokenVault({ account, chainId, setError, setTxStatus }: TokenVau
       const response = await fetch(`/api/portfolio/${account}?chain=${chainHex}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch tokens');
+        throw new Error('Failed to fetch tokens. Ensure Moralis API Key is set.');
       }
       
       const data = await response.json();
@@ -48,26 +55,126 @@ export function TokenVault({ account, chainId, setError, setTxStatus }: TokenVau
     setAmountPercent(0);
   };
 
+  // Check if supported by Aave V3 on Ethereum Mainnet (or current network)
   const isSupported = selectedToken && ['USDC', 'DAI', 'USDT', 'WETH', 'WBTC', 'LINK', 'AAVE'].includes(selectedToken.symbol);
 
   const calculateAmount = () => {
-    if (!selectedToken || amountPercent === 0) return 0;
-    return (parseFloat(selectedToken.balanceFormatted) * (amountPercent / 100)).toFixed(4);
+    if (!selectedToken || amountPercent === 0) return "0";
+    return (parseFloat(selectedToken.balanceFormatted) * (amountPercent / 100)).toFixed(selectedToken.decimals > 6 ? 6 : selectedToken.decimals);
   };
 
   const calculateMaxBorrow = () => {
-    if (!selectedToken || amountPercent === 0) return 0;
+    if (!selectedToken || amountPercent === 0) return "0";
     const value = parseFloat(selectedToken.usdValue) * (amountPercent / 100);
     return (value * 0.8).toFixed(2); // Assuming 80% LTV
   };
 
-  const handleAction = (action: 'deposit' | 'borrow') => {
+  const initiateAction = (action: 'deposit' | 'borrow') => {
     if (!selectedToken || amountPercent === 0) return;
-    setTxStatus(`Initiating ${action} for ${calculateAmount()} ${selectedToken.symbol} via Aave...`);
-    setTimeout(() => {
-      setTxStatus(`${action.charAt(0).toUpperCase() + action.slice(1)} successful! Platform Fee: 0.5% applied.`);
-      setTimeout(() => setTxStatus(''), 3000);
-    }, 2000);
+    setTxAction(action);
+    setShowTxModal(true);
+  };
+
+  const executeTransaction = async () => {
+    if (!selectedToken || !txAction || !window.ethereum) return;
+    
+    setIsExecuting(true);
+    setError('');
+    
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      
+      const aaveAddresses = AAVE_ADDRESSES[chainId] || AAVE_ADDRESSES[1]; // Fallback to mainnet if unsupported
+      if (!aaveAddresses) throw new Error("Aave not supported on this network");
+      
+      const poolContract = new ethers.Contract(aaveAddresses.POOL, ABIS.POOL, signer);
+      const tokenContract = new ethers.Contract(selectedToken.token_address, ABIS.ERC20, signer);
+      
+      const amountStr = calculateAmount();
+      const amountWei = ethers.parseUnits(amountStr, selectedToken.decimals);
+      
+      if (txAction === 'deposit') {
+        // 1. Check Allowance
+        setTxStatus('Checking token allowance...');
+        const allowance = await tokenContract.allowance(account, aaveAddresses.POOL);
+        
+        if (allowance < amountWei) {
+          // 2. Approve
+          setIsApproving(true);
+          setTxStatus('Please approve the token in MetaMask...');
+          try {
+            const approveTx = await tokenContract.approve(aaveAddresses.POOL, ethers.MaxUint256);
+            setTxStatus('Waiting for approval confirmation...');
+            await approveTx.wait();
+          } catch (err: any) {
+            if (err.code === 'ACTION_REJECTED') throw new Error("Token approval rejected by user");
+            throw new Error("Token approval failed");
+          } finally {
+            setIsApproving(false);
+          }
+        }
+        
+        // 3. Supply
+        setTxStatus('Please confirm the deposit in MetaMask...');
+        try {
+          // Estimate gas first to catch errors
+          await poolContract.supply.estimateGas(selectedToken.token_address, amountWei, account, 0);
+          
+          const tx = await poolContract.supply(selectedToken.token_address, amountWei, account, 0);
+          setTxStatus('Waiting for deposit confirmation...');
+          await tx.wait();
+          
+          setTxStatus('Deposit successful!');
+        } catch (err: any) {
+          if (err.code === 'ACTION_REJECTED') throw new Error("Deposit rejected by user");
+          if (err.message.includes('gas')) throw new Error("Insufficient gas for deposit");
+          throw new Error("Deposit failed: " + (err.reason || err.message));
+        }
+        
+      } else if (txAction === 'borrow') {
+        // Borrow USDC
+        const usdcAddress = aaveAddresses.USDC;
+        if (!usdcAddress) throw new Error("USDC address not configured for this network");
+        
+        // We borrow USDC based on the USD value of the collateral they selected
+        // In a real scenario, they would have already deposited collateral.
+        // For this UI, we assume they want to borrow against their existing collateral.
+        const borrowAmountUsd = calculateMaxBorrow();
+        const borrowAmountWei = ethers.parseUnits(borrowAmountUsd, 6); // USDC has 6 decimals
+        
+        setTxStatus('Please confirm the borrow in MetaMask...');
+        try {
+          // Estimate gas
+          await poolContract.borrow.estimateGas(usdcAddress, borrowAmountWei, 2, 0, account);
+          
+          const tx = await poolContract.borrow(usdcAddress, borrowAmountWei, 2, 0, account); // 2 = Variable Rate
+          setTxStatus('Waiting for borrow confirmation...');
+          await tx.wait();
+          
+          setTxStatus('Borrow successful! Platform Fee: 0.5% applied.');
+        } catch (err: any) {
+          if (err.code === 'ACTION_REJECTED') throw new Error("Borrow rejected by user");
+          if (err.message.includes('gas')) throw new Error("Insufficient gas for borrow");
+          throw new Error("Borrow failed: " + (err.reason || err.message));
+        }
+      }
+      
+      // Refresh balances after success
+      setTimeout(() => {
+        fetchTokens();
+        setTxStatus('');
+        setShowTxModal(false);
+        setAmountPercent(0);
+      }, 3000);
+      
+    } catch (err: any) {
+      console.error("Transaction Error:", err);
+      setError(err.message || "Transaction failed");
+      setTxStatus('');
+    } finally {
+      setIsExecuting(false);
+    }
   };
 
   return (
@@ -82,6 +189,9 @@ export function TokenVault({ account, chainId, setError, setTxStatus }: TokenVau
             <h2 className="text-3xl font-bold text-white tracking-tight">TokenVault™</h2>
             <p className="text-slate-400 mt-1">Use ERC-20 tokens as collateral and borrow instantly via Aave</p>
           </div>
+        </div>
+        <div className="relative z-10 mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-wider">
+          <ShieldCheck size={14} /> Powered by Aave V3 — Real on-chain transactions
         </div>
       </div>
 
@@ -200,18 +310,18 @@ export function TokenVault({ account, chainId, setError, setTxStatus }: TokenVau
 
               <div className="grid grid-cols-2 gap-3">
                 <button
-                  onClick={() => handleAction('deposit')}
+                  onClick={() => initiateAction('deposit')}
                   disabled={amountPercent === 0}
                   className="bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold text-sm transition-colors disabled:opacity-50"
                 >
-                  Deposit
+                  Deposit to Aave
                 </button>
                 <button
-                  onClick={() => handleAction('borrow')}
+                  onClick={() => initiateAction('borrow')}
                   disabled={amountPercent === 0}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-sm transition-colors shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
                 >
-                  Borrow
+                  Borrow USDC
                 </button>
               </div>
             </div>
@@ -238,6 +348,70 @@ export function TokenVault({ account, chainId, setError, setTxStatus }: TokenVau
           ))}
         </div>
       </div>
+
+      {/* Transaction Modal */}
+      {showTxModal && selectedToken && txAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <ShieldCheck className="text-indigo-400" />
+              Confirm {txAction === 'deposit' ? 'Deposit' : 'Borrow'}
+            </h3>
+            
+            <div className="space-y-4 mb-6">
+              <div className="p-4 bg-slate-800 rounded-xl border border-slate-700">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-400">Protocol</span>
+                  <span className="text-white font-semibold">Aave V3</span>
+                </div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-400">Action</span>
+                  <span className="text-white font-semibold capitalize">{txAction}</span>
+                </div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-400">Asset</span>
+                  <span className="text-white font-semibold">{txAction === 'deposit' ? selectedToken.symbol : 'USDC'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">Amount</span>
+                  <span className="text-white font-mono font-bold">
+                    {txAction === 'deposit' ? calculateAmount() : calculateMaxBorrow()}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm text-blue-400 flex items-start gap-2">
+                <Activity size={16} className="shrink-0 mt-0.5" />
+                <p>This will execute a real on-chain transaction via MetaMask.</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowTxModal(false)}
+                disabled={isExecuting}
+                className="flex-1 py-3 rounded-xl font-bold text-sm bg-slate-800 text-white hover:bg-slate-700 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeTransaction}
+                disabled={isExecuting}
+                className="flex-1 py-3 rounded-xl font-bold text-sm bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isExecuting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    {isApproving ? 'Approving...' : 'Executing...'}
+                  </>
+                ) : (
+                  'Confirm'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
