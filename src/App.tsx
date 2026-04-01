@@ -1010,7 +1010,12 @@ function App() {
 
             {/* Tab Content: FlashBuilder */}
             {activeTab === 'flashbuilder' && (
-              <FlashBuilder />
+              <FlashBuilder 
+                account={account} 
+                chainId={chainId} 
+                setError={setError} 
+                setTxStatus={setTxStatus} 
+              />
             )}
 
             {/* Tab Content: NFTCash */}
