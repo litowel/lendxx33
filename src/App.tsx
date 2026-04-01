@@ -473,25 +473,8 @@ function App() {
       if (data.error) throw new Error(data.error);
       setAiData(data);
     } catch (err: any) {
-      let errorMsg = err.message || 'Failed to get AI recommendation';
-      
-      // Try to parse if it's a JSON string
-      try {
-        const parsed = JSON.parse(errorMsg);
-        if (parsed.error && parsed.error.message) {
-          errorMsg = parsed.error.message;
-        }
-      } catch (e) {
-        // Not JSON, keep original string
-      }
-
-      if (errorMsg.includes('API key not valid') || errorMsg.includes('API_KEY_INVALID')) {
-        setError('Invalid AI API Key. Please check your configuration in Vercel.');
-      } else if (errorMsg.includes('fetch')) {
-        setError('Network error. Please check your connection.');
-      } else {
-        setError(errorMsg.length > 100 ? 'An unexpected error occurred during AI analysis.' : errorMsg);
-      }
+      console.error('AI Recommendation Error:', err);
+      setError('AI temporarily unavailable');
     } finally {
       setAiLoading(false);
     }
@@ -659,7 +642,7 @@ function App() {
                 onClick={() => setActiveTab('ai')}
                 className={`flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === 'ai' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
               >
-                <BrainCircuit size={18} /> AI Advisor
+                <BrainCircuit size={18} /> AI-powered DeFi risk engine
               </button>
             </div>
 
@@ -1045,7 +1028,7 @@ function App() {
                       <h2 className="text-2xl font-semibold text-white tracking-tight">Quantitative Risk Intelligence</h2>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
-                        <p className="text-slate-400 text-xs font-bold tracking-widest uppercase">AI-Powered Risk & Strategy Engine</p>
+                        <p className="text-slate-400 text-xs font-bold tracking-widest uppercase">AI-powered DeFi risk engine</p>
                       </div>
                     </div>
                   </div>

@@ -256,20 +256,9 @@ app.post('/api/analyze', async (req, res) => {
   try {
     const { portfolio, aaveData, chainId } = req.body;
     
-    const mockResponse = {
-      safeBorrowLimitUSD: 2500,
-      recommendedAssetToBorrow: "USDC",
-      riskLevel: "Low",
-      healthFactorAnalysis: "Your health factor is currently safe. You have sufficient collateral to withstand moderate market volatility.",
-      actionableAdvice: [
-        "Consider depositing your idle USDC to earn passive yield.",
-        "Monitor your WBTC collateral if market volatility increases."
-      ]
-    };
-
     if (!process.env.GEMINI_API_KEY) {
-      console.warn('GEMINI_API_KEY is missing. Returning mock AI analysis.');
-      return res.json(mockResponse);
+      console.error('GEMINI_API_KEY is missing.');
+      return res.status(503).json({ error: 'AI temporarily unavailable' });
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -289,13 +278,13 @@ app.post('/api/analyze', async (req, res) => {
     Portfolio Data: ${JSON.stringify(simplifiedPortfolio)}
     Aave V3 Data: ${JSON.stringify(aaveData)}
     
-    Provide a JSON response with the following exact structure:
+    Provide a JSON response with the following exact structure. Ensure the advice is actionable and uses clear bullet points where appropriate:
     {
       "safeBorrowLimitUSD": "number (calculate a safe limit based on collateral and a target health factor of 2.0)",
       "recommendedAssetToBorrow": "string (e.g., 'USDC', 'DAI', based on stablecoin availability)",
       "riskLevel": "Low | Medium | High",
-      "healthFactorAnalysis": "string (explain their current health factor and liquidation risk)",
-      "actionableAdvice": ["string", "string"] (2-3 bullet points of actionable DeFi advice)
+      "healthFactorAnalysis": "string (explain their current health factor and liquidation risk clearly)",
+      "actionableAdvice": ["string", "string"] (2-3 clear, actionable bullet points of DeFi strategy advice)
     }`;
 
     // Use flash-lite for maximum speed to avoid Vercel Hobby 10s timeout
@@ -325,19 +314,7 @@ app.post('/api/analyze', async (req, res) => {
     }
   } catch (error: any) {
     console.error('AI Error:', error);
-    
-    // Fallback to mock data if the API key is invalid or any other error occurs
-    console.warn('AI analysis failed. Returning mock AI analysis.');
-    return res.json({
-      safeBorrowLimitUSD: 2500,
-      recommendedAssetToBorrow: "USDC",
-      riskLevel: "Low",
-      healthFactorAnalysis: "Your health factor is currently safe. You have sufficient collateral to withstand moderate market volatility.",
-      actionableAdvice: [
-        "Consider depositing your idle USDC to earn passive yield.",
-        "Monitor your WBTC collateral if market volatility increases."
-      ]
-    });
+    return res.status(503).json({ error: 'AI temporarily unavailable' });
   }
 });
 

@@ -282,7 +282,7 @@ const HERO_SLIDES = [
   { title: "FlashBuilder™", desc: "No-code flash loan strategy simulator for arbitrage and liquidations.", img: "https://picsum.photos/seed/builder/1200/600?blur=2", icon: <Layers size={40} /> },
   { title: "NFTCash™ Aggregator", desc: "Unlock liquidity from Blue-Chip NFTs across multiple protocols.", img: "https://picsum.photos/seed/nftart/1200/600?blur=2", icon: <Image size={40} /> },
   { title: "Fractional Loans™", desc: "Borrow against tokenized real estate, business equity, and fine art.", img: "https://picsum.photos/seed/fractional/1200/600?blur=2", icon: <Activity size={40} /> },
-  { title: "AI Risk Advisor", desc: "Quantitative risk intelligence and actionable portfolio advice.", img: "https://picsum.photos/seed/data/1200/600?blur=2", icon: <BrainCircuit size={40} /> }
+  { title: "AI-powered DeFi risk engine", desc: "Quantitative risk intelligence and actionable portfolio advice.", img: "https://picsum.photos/seed/data/1200/600?blur=2", icon: <BrainCircuit size={40} /> }
 ];
 
 const HeroSlider = () => {
@@ -638,7 +638,7 @@ export const HomeSections = ({ onConnect }: { onConnect: () => void }) => {
 
         <div className="mt-12 text-center">
           <button onClick={onConnect} className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(79,70,229,0.4)]">
-            Ask AI Advisor <ArrowRight size={18} />
+            AI-powered DeFi risk engine <ArrowRight size={18} />
           </button>
         </div>
       </section>
