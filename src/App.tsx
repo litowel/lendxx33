@@ -193,9 +193,12 @@ function App() {
       const data = await response.json();
       
       if (data.error) {
-        console.warn(data.error);
-        setPortfolioError(data.error);
-        return;
+        console.error("Backend returned error:", data.error);
+        // Do not show error in UI per requirements
+      }
+
+      if (data.nativeBalance !== undefined && balance === '0') {
+        setBalance(data.nativeBalance.toString());
       }
 
       if (data.tokens) {
@@ -203,7 +206,7 @@ function App() {
       }
     } catch (err: any) {
       console.error('Error fetching portfolio:', err);
-      setPortfolioError(err.message || 'Failed to fetch portfolio data');
+      // Do not show error in UI per requirements
     }
   };
 

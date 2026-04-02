@@ -25,7 +25,8 @@ app.get('/api/portfolio/:address', async (req, res) => {
     const chainHex = req.query.chain || '0x1'; // Default to Mainnet
     
     if (!process.env.MORALIS_API_KEY) {
-      return res.json({ success: false, error: "Missing API key" });
+      console.error("Missing Moralis API key");
+      return res.json({ nativeBalance: 0, tokens: [] });
     }
 
     const headers = {
@@ -46,18 +47,23 @@ app.get('/api/portfolio/:address', async (req, res) => {
       }
     };
 
-    let nativeData = { balance: "0" };
+    let nativeBalance = 0;
     let formattedTokens: any[] = [];
 
     try {
       // Fetch native balance
-      const nativeRes = await fetchWithTimeout(`https://deep-index.moralis.io/api/v2.2/${address}/balance?chain=${chainHex}`, { headers });
+      const nativeRes = await fetchWithTimeout(`https://deep-index.moralis.io/api/v2/${address}/balance?chain=${chainHex}`, { headers });
       if (nativeRes.ok) {
-        nativeData = await nativeRes.json();
+        const nativeData = await nativeRes.json();
+        if (nativeData && nativeData.balance) {
+          nativeBalance = Number(nativeData.balance) / 1e18; // Convert from wei
+        }
+      } else {
+        console.error(`Moralis native balance error: ${nativeRes.status} ${nativeRes.statusText}`);
       }
 
       // Fetch ERC20 token balances
-      const tokenRes = await fetchWithTimeout(`https://deep-index.moralis.io/api/v2.2/${address}/erc20?chain=${chainHex}`, { headers });
+      const tokenRes = await fetchWithTimeout(`https://deep-index.moralis.io/api/v2/${address}/erc20?chain=${chainHex}`, { headers });
       if (tokenRes.ok) {
         const tokenData = await tokenRes.json();
         formattedTokens = (Array.isArray(tokenData) ? tokenData : []).map((token: any) => {
@@ -71,6 +77,8 @@ app.get('/api/portfolio/:address', async (req, res) => {
             usdValue
           };
         });
+      } else {
+        console.error(`Moralis ERC20 error: ${tokenRes.status} ${tokenRes.statusText}`);
       }
     } catch (fetchError) {
       console.error('Moralis fetch error:', fetchError);
@@ -78,12 +86,12 @@ app.get('/api/portfolio/:address', async (req, res) => {
     }
 
     res.json({
-      native: nativeData,
+      nativeBalance,
       tokens: formattedTokens,
     });
   } catch (error: any) {
     console.error('Error fetching portfolio:', error);
-    res.json({ native: { balance: "0" }, tokens: [], error: error.message || 'Failed to fetch portfolio data' });
+    res.json({ nativeBalance: 0, tokens: [] });
   }
 });
 
@@ -93,7 +101,8 @@ app.get('/api/nft/:address', async (req, res) => {
     const chainHex = req.query.chain || '0x1';
     
     if (!process.env.MORALIS_API_KEY) {
-      return res.json({ success: false, error: "Missing API key" });
+      console.error("Missing Moralis API key for NFT fetch");
+      return res.json({ nfts: [] });
     }
 
     const headers = {
@@ -105,7 +114,7 @@ app.get('/api/nft/:address', async (req, res) => {
 
     try {
       // Fetch NFTs using Moralis
-      const nftRes = await fetch(`https://deep-index.moralis.io/api/v2.2/${address}/nft?chain=${chainHex}&format=decimal&media_items=true`, { headers });
+      const nftRes = await fetch(`https://deep-index.moralis.io/api/v2/${address}/nft?chain=${chainHex}&format=decimal&media_items=true`, { headers });
       
       if (nftRes.ok) {
         const nftData = await nftRes.json();
@@ -148,6 +157,8 @@ app.get('/api/nft/:address', async (req, res) => {
             floorPriceUsd
           };
         }));
+      } else {
+        console.error(`Moralis NFT error: ${nftRes.status} ${nftRes.statusText}`);
       }
     } catch (fetchError) {
       console.error('Moralis NFT fetch error:', fetchError);
@@ -156,7 +167,7 @@ app.get('/api/nft/:address', async (req, res) => {
     res.json({ nfts: enrichedNfts });
   } catch (error: any) {
     console.error('Error fetching NFTs:', error);
-    res.json({ nfts: [], error: error.message || 'Failed to fetch NFTs' });
+    res.json({ nfts: [] });
   }
 });
 
