@@ -52,7 +52,7 @@ router.get('/:address', async (req, res) => {
         formattedTokens = (Array.isArray(tokenData) ? tokenData : []).map((token: any) => {
           const decimals = token.decimals || 18;
           const balanceFormatted = (Number(token.balance) / Math.pow(10, decimals)).toString();
-          const usdValue = token.usd_value || (Number(balanceFormatted) * (Math.random() * 100)).toString();
+          const usdValue = token.usd_value || "0";
           
           return {
             ...token,
