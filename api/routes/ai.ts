@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 
 const router = Router();
 
 router.post('/', async (req, res) => {
   try {
-    const { portfolio, aaveData, chainId } = req.body;
+    const { portfolio } = req.body;
     
     if (!process.env.GEMINI_API_KEY) {
       console.error('GEMINI_API_KEY is missing.');
@@ -22,23 +22,40 @@ router.post('/', async (req, res) => {
       };
     }
     
-    const prompt = `You are a Senior DeFi Risk Manager and AI Assistant for the LendX platform.
-    Analyze this user's portfolio and Aave V3 positions on chain ID ${chainId}.
+    const prompt = `You are a Senior DeFi Risk Manager.
+    Analyze this user's portfolio.
     
     Portfolio Data: ${JSON.stringify(simplifiedPortfolio)}
-    Aave V3 Data: ${JSON.stringify(aaveData)}
     
-    Provide a JSON response with the following exact structure. Ensure the advice is actionable and uses clear bullet points where appropriate:
-    {
-      "safeBorrowLimit": "number (calculate a safe limit based on collateral and a target health factor of 2.0)",
-      "riskLevel": "Low | Medium | High",
-      "advice": ["string", "string"] (2-3 clear, actionable bullet points of DeFi strategy advice)
-    }`;
+    Provide a JSON response with safeBorrowLimit (number), riskLevel (string: Low, Medium, High), and advice (array of strings).`;
 
     const aiPromise = ai.models.generateContent({
       model: 'gemini-3.1-flash-lite-preview',
       contents: prompt,
-      config: { responseMimeType: "application/json" }
+      config: { 
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            safeBorrowLimit: {
+              type: Type.NUMBER,
+              description: "Calculate a safe limit based on collateral and a target health factor of 2.0"
+            },
+            riskLevel: {
+              type: Type.STRING,
+              description: "Low, Medium, or High"
+            },
+            advice: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.STRING
+              },
+              description: "2-3 clear, actionable bullet points of DeFi strategy advice"
+            }
+          },
+          required: ["safeBorrowLimit", "riskLevel", "advice"]
+        }
+      }
     });
 
     const timeoutPromise = new Promise((_, reject) => 
@@ -48,19 +65,11 @@ router.post('/', async (req, res) => {
     const response = await Promise.race([aiPromise, timeoutPromise]) as any;
 
     if (response.text) {
-      let text = response.text.trim();
-      if (text.startsWith('```json')) {
-        text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '');
-      } else if (text.startsWith('```')) {
-        text = text.replace(/^```\n?/, '').replace(/\n?```$/, '');
-      }
-      
-      const parsed = JSON.parse(text);
-      // Ensure we map to the exact requested output format
+      const parsed = JSON.parse(response.text.trim());
       res.json({
-        safeBorrowLimit: parsed.safeBorrowLimit || parsed.safeBorrowLimitUSD || 0,
+        safeBorrowLimit: parsed.safeBorrowLimit || 0,
         riskLevel: parsed.riskLevel || "Medium",
-        advice: parsed.advice || parsed.actionableAdvice || []
+        advice: parsed.advice || []
       });
     } else {
       throw new Error("Empty response from AI");
