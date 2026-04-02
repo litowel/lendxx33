@@ -3,6 +3,42 @@ import { BLUE_CHIP_COLLECTIONS } from '../../src/lib/constants';
 
 const router = Router();
 
+router.all('/', async (req, res) => {
+  try {
+    const address = req.body.address || req.query.address;
+    
+    if (!address) {
+      return res.json({ nfts: [] });
+    }
+
+    const chainHex = req.body.chain || req.query.chain || '0x1';
+    
+    if (!process.env.MORALIS_API_KEY) {
+      console.error("Missing Moralis API key for NFT fetch");
+      return res.json({ nfts: [] });
+    }
+
+    const headers = {
+      'accept': 'application/json',
+      'X-API-Key': process.env.MORALIS_API_KEY
+    };
+
+    const nftRes = await fetch(`https://deep-index.moralis.io/api/v2.2/${address}/nft?chain=${chainHex}&format=decimal&media_items=true`, { headers });
+    
+    if (nftRes.ok) {
+      const nftData = await nftRes.json();
+      const nfts = nftData.result || [];
+      return res.json({ nfts });
+    } else {
+      console.error(`Moralis NFT error: ${nftRes.status} ${nftRes.statusText}`);
+      return res.json({ nfts: [] });
+    }
+  } catch (error: any) {
+    console.error('Error fetching NFTs:', error);
+    return res.json({ nfts: [] });
+  }
+});
+
 router.get('/:address', async (req, res) => {
   try {
     const { address } = req.params;
