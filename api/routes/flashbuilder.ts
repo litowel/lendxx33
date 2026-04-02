@@ -2,41 +2,21 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+router.all('/', async (req, res) => {
   try {
-    const { asset, amount, strategyType } = req.body;
+    const asset = req.body.asset || req.query.asset || 'ETH';
+    const amount = req.body.amount || req.query.amount || '100';
     
-    if (!asset || !amount) {
-      return res.json({ strategy: "", estimatedProfit: "0", gasEstimate: "0" });
-    }
-
-    const strategy = `// Flash Loan Strategy: ${strategyType || 'Arbitrage'}
-// Asset: ${asset}
-// Amount: ${amount}
-
-contract FlashLoanStrategy {
-    function executeOperation(
-        address asset,
-        uint256 amount,
-        uint256 premium,
-        address initiator,
-        bytes calldata params
-    ) external returns (bool) {
-        // 1. Receive Flash Loan
-        // 2. Execute Arbitrage/Liquidation
-        // 3. Repay Loan + Premium
-        return true;
-    }
-}`;
+    const strategyText = `1. Borrow ${amount} ${asset} from Aave V3\n2. Swap ${asset} on Uniswap V3 for target asset\n3. Arbitrage on Sushiswap\n4. Repay ${amount} ${asset} + 0.05% fee to Aave`;
 
     res.json({
-      strategy,
-      estimatedProfit: "0.05",
-      gasEstimate: "0.002"
+      strategyText,
+      estimatedProfit: "0.5 ETH",
+      gasEstimate: "0.01 ETH"
     });
   } catch (error: any) {
     console.error('Error generating flash loan strategy:', error);
-    res.json({ strategy: "", estimatedProfit: "0", gasEstimate: "0" });
+    res.json({ strategyText: "", estimatedProfit: "0", gasEstimate: "0" });
   }
 });
 

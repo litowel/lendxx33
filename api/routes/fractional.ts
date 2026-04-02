@@ -2,32 +2,23 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.all('/', async (req, res) => {
   try {
     const assets = [
       {
-        id: 'frac-1',
         name: 'Bored Ape #1234',
-        type: 'NFT',
-        totalFractions: 10000,
-        pricePerFraction: '0.005 ETH',
-        impliedValuation: '50 ETH'
+        value: '50 ETH',
+        share: '0.01%'
       },
       {
-        id: 'frac-2',
         name: 'CryptoPunk #5678',
-        type: 'NFT',
-        totalFractions: 100000,
-        pricePerFraction: '0.0008 ETH',
-        impliedValuation: '80 ETH'
+        value: '80 ETH',
+        share: '0.001%'
       },
       {
-        id: 'frac-3',
         name: 'NYC Commercial Property',
-        type: 'Real Estate',
-        totalFractions: 50000,
-        pricePerFraction: '100 USDC',
-        impliedValuation: '5,000,000 USDC'
+        value: '5,000,000 USDC',
+        share: '0.002%'
       }
     ];
     
