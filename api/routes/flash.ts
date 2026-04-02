@@ -2,9 +2,10 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+router.all('/', async (req, res) => {
   try {
-    const { asset, amount, strategy } = req.body;
+    const asset = req.body.asset || req.query.asset;
+    const amount = req.body.amount || req.query.amount;
     
     if (!asset || !amount) {
       return res.json({ valid: false, warning: "Missing asset or amount" });
@@ -12,7 +13,7 @@ router.post('/', async (req, res) => {
 
     res.json({
       valid: true,
-      warning: "Flash loans are advanced. Ensure your strategy is profitable after fees."
+      warning: "Flash loans require advanced knowledge"
     });
   } catch (error: any) {
     console.error('Error validating flash loan:', error);
